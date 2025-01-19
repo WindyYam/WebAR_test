@@ -82,6 +82,32 @@
             transition: transform 0.5s ease;
             transform: translateY(100%);
         }
+
+        .fullscreen-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 12;
+            background: rgba(255, 255, 255, 0.8);
+            border: none;
+            border-radius: 5px;
+            padding: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fullscreen-button:hover {
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .fullscreen-icon {
+            width: 20px;
+            height: 20px;
+            fill: #444;
+        }
     </style>
 </head>
 
@@ -98,7 +124,7 @@
             const [games, setGames] = React.useState([]);
             const [slidingOut, setSlidingOut] = React.useState(false);
             const [shuffleTimestamp, setShuffleTimestamp] = React.useState(Date.now());
-            const containerRef = React.useRef(null);
+            const [isFullscreen, setIsFullscreen] = React.useState(false);
 
             React.useEffect(() => {
                 fetch('/api/games?t='+Date.now())
@@ -109,7 +135,36 @@
                         setGames(data); 
                     })
                     .catch((error) => console.error('Error fetching games:', error));
+
+                // Add fullscreen change event listener
+                const handleFullscreenChange = () => {
+                    setIsFullscreen(!!document.fullscreenElement);
+                };
+                document.addEventListener('fullscreenchange', handleFullscreenChange);
+                document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+
+                return () => {
+                    document.removeEventListener('fullscreenchange', handleFullscreenChange);
+                    document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+                };
             }, []);
+
+            const toggleFullscreen = () => {
+                const rootElement = document.documentElement;
+                if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                    if (rootElement.requestFullscreen) {
+                        rootElement.requestFullscreen();
+                    } else if (rootElement.webkitRequestFullscreen) {
+                        rootElement.webkitRequestFullscreen();
+                    }
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
+                    }
+                }
+            };
 
             const handleStart = (y) => {
                 if (window.scrollY === 0) {
@@ -138,20 +193,20 @@
 
             const handleEnd = () => {
                 if (pulling && games.length > 0) {
-                    setSlidingOut(true);  // Start sliding out animation
+                    setSlidingOut(true);
                     setTimeout(() => {
                         let newGame;
                         do {
                             newGame = Math.floor(Math.random() * games.length);
                         } while (newGame === currentGame);
                         setShuffleTimestamp(Date.now());
-                        setCurrentGame(newGame);  // Change the game immediately
-                    }, 400); // Match animation time
+                        setCurrentGame(newGame);
+                    }, 400);
 
                     setTimeout(() => {
-                        setSlidingOut(false); // End sliding out animation
+                        setSlidingOut(false);
                         setTransform('translateY(0)');
-                    }, 500); // Match animation time
+                    }, 500);
                 }
 
                 setStartY(null);
@@ -185,37 +240,50 @@
             }
 
             return (
-                <div
-                    ref={containerRef}
-                    className={`game-container ${pulling ? 'pulling' : ''} ${isDragging ? 'dragging' : ''} ${slidingOut ? 'sliding-out' : ''}`}
-                    style={{ transform }}
-                >
-                    <div 
-                        className="drag-zone"
-                        onTouchStart={handleTouchStart}
-                        onTouchMove={handleTouchMove}
-                        onTouchEnd={handleEnd}
-                        onMouseDown={handleMouseDown}
-                        onMouseMove={handleMouseMove}
-                        onMouseUp={handleEnd}
-                        onMouseLeave={handleEnd}
+                <div className='game-container'>
+                    <button 
+                            className="fullscreen-button" 
+                            onClick={toggleFullscreen}
+                            aria-label="Toggle fullscreen"
+                        >
+                            <svg className="fullscreen-icon" viewBox="0 0 24 24">
+                                {isFullscreen ? (
+                                    <path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/>
+                                ) : (
+                                    <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+                                )}
+                            </svg>
+                        </button>
+                    <div
+                        className={`game-container ${pulling ? 'pulling' : ''} ${isDragging ? 'dragging' : ''} ${slidingOut ? 'sliding-out' : ''}`}
+                        style={{ transform }}
                     >
-                        <div className="pulling-indicator">
-                            Pull to shuffle ↓
+                        <div 
+                            className="drag-zone"
+                            onTouchStart={handleTouchStart}
+                            onTouchMove={handleTouchMove}
+                            onTouchEnd={handleEnd}
+                            onMouseDown={handleMouseDown}
+                            onMouseMove={handleMouseMove}
+                            onMouseUp={handleEnd}
+                            onMouseLeave={handleEnd}
+                        >
+                            <div className="pulling-indicator">
+                                Pull to shuffle ↓
+                            </div>
                         </div>
+                        <iframe
+                            src={`${games[currentGame].path}?t=${shuffleTimestamp}`}
+                            className="game-frame"
+                            title={`Game ${currentGame + 1}`}
+                        />
                     </div>
-                    <iframe
-                        src={`${games[currentGame].path}?t=${shuffleTimestamp}`}
-                        className={`game-frame `}
-                        title={`Game ${currentGame + 1}`}
-                    />
                 </div>
             );
         };
-
+        
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<GameFramework />);
     </script>
 </body>
-
 </html>
