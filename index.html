@@ -145,6 +145,9 @@
                         } while (newGame === currentGame);
                         setShuffleTimestamp(Date.now());
                         setCurrentGame(newGame);  // Change the game immediately
+                    }, 400); // Match animation time
+                    
+                    setTimeout(() => {
                         setSlidingOut(false); // End sliding out animation
                         setTransform('translateY(0)');
                     }, 500); // Match animation time
