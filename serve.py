@@ -2,34 +2,56 @@ import http.server
 import socketserver
 import os
 import json
+import threading
 
 PORT = 8000
 
+class ThreadedHTTPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+    """Handle requests in a separate thread."""
+    allow_reuse_address = True
+
 class CustomHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
-        super().do_GET()
-
+        if self.path == '/api/games':
+            self.handle_games_api()
+        else:
+            super().do_GET()
+    
     def handle_games_api(self):
         """Handles the /api/games endpoint."""
         games_dir = os.path.join(os.getcwd(), 'games')
         games = []
-
+        
         # Collect games dynamically from the games directory
         if os.path.exists(games_dir):
             for game_id, game_folder in enumerate(sorted(os.listdir(games_dir))):
                 game_path = f'games/{game_folder}/index.html'
                 if os.path.exists(os.path.join(games_dir, game_folder, 'index.html')):
                     games.append({'id': game_id, 'path': game_path})
-
+        
         # Respond with the JSON
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
+        self.send_header("Access-Control-Allow-Origin", "*")  # Add CORS header
         self.end_headers()
         self.wfile.write(json.dumps(games).encode('utf-8'))
 
-# Serve the current directory
-os.chdir(os.path.dirname(__file__))
+def run_server():
+    # Serve the current directory
+    os.chdir(os.path.dirname(__file__))
+    
+    try:
+        with ThreadedHTTPServer(("", PORT), CustomHandler) as httpd:
+            print(f"Server started at http://127.0.0.1:{PORT}")
+            print("Press Ctrl+C to stop the server")
+            httpd.serve_forever()
+    except KeyboardInterrupt:
+        print("\nShutting down the server...")
+        httpd.shutdown()
+        httpd.server_close()
+        print("Server stopped successfully")
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
-with socketserver.TCPServer(("", PORT), CustomHandler) as httpd:
-    print(f"Serving at http://127.0.0.1:{PORT}")
-    httpd.serve_forever()
+if __name__ == "__main__":
+    run_server()

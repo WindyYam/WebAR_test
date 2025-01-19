@@ -101,9 +101,10 @@
             const containerRef = React.useRef(null);
 
             React.useEffect(() => {
-                fetch('/api/games')
+                fetch('/api/games?t='+Date.now())
                     .then((response) => response.json())
                     .then((data) => { 
+                        console.error('Game Length:', data.length);
                         setCurrentGame(Math.floor(Math.random() * data.length)); 
                         setGames(data); 
                     })
@@ -146,7 +147,7 @@
                         setShuffleTimestamp(Date.now());
                         setCurrentGame(newGame);  // Change the game immediately
                     }, 400); // Match animation time
-                    
+
                     setTimeout(() => {
                         setSlidingOut(false); // End sliding out animation
                         setTransform('translateY(0)');
