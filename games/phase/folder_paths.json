@@ -1,0 +1,296 @@
+[
+    {
+        "path": "games/phase/2048/index.html"
+    },
+    {
+        "path": "games/phase/40963/index.html"
+    },
+    {
+        "path": "games/phase/allalive/index.html"
+    },
+    {
+        "path": "games/phase/arpg/index.html"
+    },
+    {
+        "path": "games/phase/attackonball/index.html"
+    },
+    {
+        "path": "games/phase/ballgame/index.html"
+    },
+    {
+        "path": "games/phase/bike/index.html"
+    },
+    {
+        "path": "games/phase/blindmoon/index.html"
+    },
+    {
+        "path": "games/phase/blockdown/index.html"
+    },
+    {
+        "path": "games/phase/bottle3/index.html"
+    },
+    {
+        "path": "games/phase/breaklovers/index.html"
+    },
+    {
+        "path": "games/phase/breakout3/index.html"
+    },
+    {
+        "path": "games/phase/candy/index.html"
+    },
+    {
+        "path": "games/phase/candytbc/index.html"
+    },
+    {
+        "path": "games/phase/catapult/index.html"
+    },
+    {
+        "path": "games/phase/charge/index.html"
+    },
+    {
+        "path": "games/phase/circlepath/index.html"
+    },
+    {
+        "path": "games/phase/collectstar/index.html"
+    },
+    {
+        "path": "games/phase/crazybird/index.html"
+    },
+    {
+        "path": "games/phase/dinosaur/index.html"
+    },
+    {
+        "path": "games/phase/donottapwhitetile/index.html"
+    },
+    {
+        "path": "games/phase/doudizhu/index.html"
+    },
+    {
+        "path": "games/phase/downfloor/index.html"
+    },
+    {
+        "path": "games/phase/dragandmatch/index.html"
+    },
+    {
+        "path": "games/phase/eatball/index.html"
+    },
+    {
+        "path": "games/phase/eliminate/index.html"
+    },
+    {
+        "path": "games/phase/fctank/index.html"
+    },
+    {
+        "path": "games/phase/fifty/index.html"
+    },
+    {
+        "path": "games/phase/findpath/index.html"
+    },
+    {
+        "path": "games/phase/flappybird/index.html"
+    },
+    {
+        "path": "games/phase/flappybird3/index.html"
+    },
+    {
+        "path": "games/phase/fruit/index.html"
+    },
+    {
+        "path": "games/phase/fruitwar/index.html"
+    },
+    {
+        "path": "games/phase/fubag/index.html"
+    },
+    {
+        "path": "games/phase/getcockscomb/index.html"
+    },
+    {
+        "path": "games/phase/getcoins3/index.html"
+    },
+    {
+        "path": "games/phase/getogether/index.html"
+    },
+    {
+        "path": "games/phase/getthestarforyou/index.html"
+    },
+    {
+        "path": "games/phase/hearthstone/index.html"
+    },
+    {
+        "path": "games/phase/hitball/index.html"
+    },
+    {
+        "path": "games/phase/hitgraywolf3/index.html"
+    },
+    {
+        "path": "games/phase/jokingyou/index.html"
+    },
+    {
+        "path": "games/phase/jump/index.html"
+    },
+    {
+        "path": "games/phase/jumpone/index.html"
+    },
+    {
+        "path": "games/phase/justshoot/index.html"
+    },
+    {
+        "path": "games/phase/kite/index.html"
+    },
+    {
+        "path": "games/phase/knifehit3/index.html"
+    },
+    {
+        "path": "games/phase/kupao/index.html"
+    },
+    {
+        "path": "games/phase/learn/index.html"
+    },
+    {
+        "path": "games/phase/learn3/index.html"
+    },
+    {
+        "path": "games/phase/legendofwolf/index.html"
+    },
+    {
+        "path": "games/phase/lottery/index.html"
+    },
+    {
+        "path": "games/phase/magicplain/index.html"
+    },
+    {
+        "path": "games/phase/manna/index.html"
+    },
+    {
+        "path": "games/phase/marathon/index.html"
+    },
+    {
+        "path": "games/phase/maze/index.html"
+    },
+    {
+        "path": "games/phase/memory/index.html"
+    },
+    {
+        "path": "games/phase/minorminer/index.html"
+    },
+    {
+        "path": "games/phase/mota/index.html"
+    },
+    {
+        "path": "games/phase/nail/index.html"
+    },
+    {
+        "path": "games/phase/p2ball/index.html"
+    },
+    {
+        "path": "games/phase/pacman/index.html"
+    },
+    {
+        "path": "games/phase/partials/index.html"
+    },
+    {
+        "path": "games/phase/petparty/index.html"
+    },
+    {
+        "path": "games/phase/pixelstar/index.html"
+    },
+    {
+        "path": "games/phase/plane/index.html"
+    },
+    {
+        "path": "games/phase/planewar/index.html"
+    },
+    {
+        "path": "games/phase/prize/index.html"
+    },
+    {
+        "path": "games/phase/puzzle/index.html"
+    },
+    {
+        "path": "games/phase/quickrush3/index.html"
+    },
+    {
+        "path": "games/phase/quitsmoke/index.html"
+    },
+    {
+        "path": "games/phase/randomdungeon/index.html"
+    },
+    {
+        "path": "games/phase/rhythm/index.html"
+    },
+    {
+        "path": "games/phase/rocket/index.html"
+    },
+    {
+        "path": "games/phase/rpgdemo/index.html"
+    },
+    {
+        "path": "games/phase/run/index.html"
+    },
+    {
+        "path": "games/phase/runrobot/index.html"
+    },
+    {
+        "path": "games/phase/russianblock/index.html"
+    },
+    {
+        "path": "games/phase/scaldfish/index.html"
+    },
+    {
+        "path": "games/phase/seckill/index.html"
+    },
+    {
+        "path": "games/phase/services/index.html"
+    },
+    {
+        "path": "games/phase/shenjingmao/index.html"
+    },
+    {
+        "path": "games/phase/shoot/index.html"
+    },
+    {
+        "path": "games/phase/simplechess/index.html"
+    },
+    {
+        "path": "games/phase/skeletonguard/index.html"
+    },
+    {
+        "path": "games/phase/snap/index.html"
+    },
+    {
+        "path": "games/phase/stardog/index.html"
+    },
+    {
+        "path": "games/phase/starship/index.html"
+    },
+    {
+        "path": "games/phase/susliks/index.html"
+    },
+    {
+        "path": "games/phase/swordart/index.html"
+    },
+    {
+        "path": "games/phase/tacit/index.html"
+    },
+    {
+        "path": "games/phase/tank/index.html"
+    },
+    {
+        "path": "games/phase/timberpig/index.html"
+    },
+    {
+        "path": "games/phase/tools/index.html"
+    },
+    {
+        "path": "games/phase/twowar/index.html"
+    },
+    {
+        "path": "games/phase/unforgetday/index.html"
+    },
+    {
+        "path": "games/phase/weiduan/index.html"
+    },
+    {
+        "path": "games/phase/wipeglass/index.html"
+    }
+]

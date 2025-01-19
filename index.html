@@ -1,97 +1,217 @@
 <!DOCTYPE html>
-<html lang="en-us">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity WebGL Player | webar</title>
-    <meta name="description" content="">
-    <link rel="shortcut icon" href="TemplateData/favicon.ico">
-    <link rel="stylesheet" href="TemplateData/style.css">
-  </head>
-  <body>
-    <div id="unity-container">
-      <div id="unity-canvas-container" style="width: 100%; height: 100%;">
-        <canvas id="unity-canvas" style="width: 100%; height: 100%;"></canvas>
-      </div>
-      <div id="unity-loading-bar">
-        <div id="unity-logo"></div>
-        <div id="unity-progress-bar-empty">
-          <div id="unity-progress-bar-full"></div>
-        </div>
-      </div>
-      <div id="unity-footer">
-        <div id="unity-webgl-logo"></div>
-        <button id="enterar" value="Enter AR" disabled>AR</button>
-        <div id="unity-build-title">webar</div>
-      </div>
-    </div>
-    <script>
-      var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/aroutput.loader.js";
-      var config = {
-        dataUrl: buildUrl + "/aroutput.data",
-        frameworkUrl: buildUrl + "/aroutput.framework.js",
-        codeUrl: buildUrl + "/aroutput.wasm",
-        streamingAssetsUrl: "StreamingAssets",
-        companyName: "DefaultCompany",
-        productName: "webar",
-        productVersion: "0.1",
-      };
+<html lang="en">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Framework</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
 
-      var container = document.querySelector("#unity-container");
-      var canvas = document.querySelector("#unity-canvas");
-      var canvasContainer = document.querySelector("#unity-canvas-container");
-      var loadingBar = document.querySelector("#unity-loading-bar");
-      var progressBarFull = document.querySelector("#unity-progress-bar-full");
-      var fullscreenButton = document.querySelector("#unity-fullscreen-button");
-      var unityInstance = null;
-      
+        #root {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
 
-      loadingBar.style.display = "block";
+        .game-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
 
-      var script = document.createElement("script");
-      script.src = loaderUrl;
-      script.onload = () => {
-        createUnityInstance(canvas, config, (progress) => {
-          progressBarFull.style.width = 100 * progress + "%";
-        }).then((instance) => {
-          unityInstance = instance;
-          loadingBar.style.display = "none";
-		  if(!enterARButton.disabled){
-			unityInstance.Module.WebXR.toggleAR();
-		  }
-          if (fullscreenButton)
-          {
-            fullscreenButton.onclick = () => {
-              unityInstance.SetFullscreen(1);
+        .drag-zone {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), transparent);
+            z-index: 10;
+            cursor: ns-resize;
+            transition: height 0.2s, background 0.2s;
+        }
+
+        .dragging .drag-zone {
+            height: 100vh;
+            background: transparent;
+        }
+
+        .game-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            z-index: 5;
+        }
+
+        .pulling-indicator {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #666;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 11;
+        }
+
+        .pulling .pulling-indicator {
+            opacity: 1;
+        }
+
+        .sliding-out {
+            transition: transform 0.5s ease;
+            transform: translateY(100%);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const GameFramework = () => {
+            const [startY, setStartY] = React.useState(null);
+            const [pulling, setPulling] = React.useState(false);
+            const [isDragging, setIsDragging] = React.useState(false);
+            const [currentGame, setCurrentGame] = React.useState(0);
+            const [transform, setTransform] = React.useState('translateY(0)');
+            const [games, setGames] = React.useState([]);
+            const [slidingOut, setSlidingOut] = React.useState(false);
+            const [shuffleTimestamp, setShuffleTimestamp] = React.useState(Date.now());
+            const containerRef = React.useRef(null);
+
+            React.useEffect(() => {
+                fetch('/api/games')
+                    .then((response) => response.json())
+                    .then((data) => { 
+                        setCurrentGame(Math.floor(Math.random() * data.length)); 
+                        setGames(data); 
+                    })
+                    .catch((error) => console.error('Error fetching games:', error));
+            }, []);
+
+            const handleStart = (y) => {
+                if (window.scrollY === 0) {
+                    setStartY(y);
+                    setIsDragging(true);
+                }
             };
-          }
-        }).catch((message) => {
-          alert(message);
-        });
-      };
-      document.body.appendChild(script);
 
-      let enterARButton = document.getElementById('enterar');
-      //let enterVRButton = document.getElementById('entervr');
+            const handleMove = (y) => {
+                if (startY !== null) {
+                    const diff = y - startY;
 
-      document.addEventListener('onARSupportedCheck', function (event) {
-        enterARButton.disabled = !event.detail.supported;
-		if(event.detail.supported && unityInstance != null){
-			unityInstance.Module.WebXR.toggleAR();
-		}
-      }, false);
-      /*document.addEventListener('onVRSupportedCheck', function (event) {
-        enterVRButton.disabled = !event.detail.supported;
-      }, false);*/
+                    if (diff > 100) {
+                        setPulling(true);
+                    } else {
+                        setPulling(false);
+                    }
 
-      enterARButton.addEventListener('click', function (event) {
-        unityInstance.Module.WebXR.toggleAR();
-      }, false);
-      /*enterVRButton.addEventListener('click', function (event) {
-        unityInstance.Module.WebXR.toggleVR();
-      }, false);*/
+                    if (diff > 0) {
+                        setTransform(`translateY(${diff}px)`);
+                        return true;
+                    }
+                }
+                return false;
+            };
+
+            const handleEnd = () => {
+                if (pulling && games.length > 0) {
+                    setSlidingOut(true);  // Start sliding out animation
+                    setTimeout(() => {
+                        let newGame;
+                        do {
+                            newGame = Math.floor(Math.random() * games.length);
+                        } while (newGame === currentGame);
+                        setShuffleTimestamp(Date.now());
+                        setCurrentGame(newGame);  // Change the game immediately
+                        setSlidingOut(false); // End sliding out animation
+                        setTransform('translateY(0)');
+                    }, 500); // Match animation time
+                }
+
+                setStartY(null);
+                setPulling(false);
+                setIsDragging(false);
+                setTransform('');
+            };
+
+            const handleTouchStart = (e) => {
+                handleStart(e.touches[0].clientY);
+            };
+            
+            const handleTouchMove = (e) => {
+                if (handleMove(e.touches[0].clientY)) {
+                    e.preventDefault();
+                }
+            };
+
+            const handleMouseDown = (e) => {
+                handleStart(e.clientY);
+            };
+            
+            const handleMouseMove = (e) => {
+                if (startY !== null && handleMove(e.clientY)) {
+                    e.preventDefault();
+                }
+            };
+
+            if (games.length === 0) {
+                return <div>Loading games...</div>;
+            }
+
+            return (
+                <div
+                    ref={containerRef}
+                    className={`game-container ${pulling ? 'pulling' : ''} ${isDragging ? 'dragging' : ''} ${slidingOut ? 'sliding-out' : ''}`}
+                    style={{ transform }}
+                >
+                    <div 
+                        className="drag-zone"
+                        onTouchStart={handleTouchStart}
+                        onTouchMove={handleTouchMove}
+                        onTouchEnd={handleEnd}
+                        onMouseDown={handleMouseDown}
+                        onMouseMove={handleMouseMove}
+                        onMouseUp={handleEnd}
+                        onMouseLeave={handleEnd}
+                    >
+                        <div className="pulling-indicator">
+                            Pull to shuffle ↓
+                        </div>
+                    </div>
+                    <iframe
+                        src={`${games[currentGame].path}?t=${shuffleTimestamp}`}
+                        className={`game-frame `}
+                        title={`Game ${currentGame + 1}`}
+                    />
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<GameFramework />);
     </script>
-  </body>
+</body>
+
 </html>
