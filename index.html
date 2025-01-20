@@ -3,6 +3,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +12,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
     <style>
-        html, body {
+        html,
+        body {
             margin: 0;
             padding: 0;
             height: 100%;
@@ -125,18 +127,22 @@
             const [slidingOut, setSlidingOut] = React.useState(false);
             const [shuffleTimestamp, setShuffleTimestamp] = React.useState(Date.now());
             const [isFullscreen, setIsFullscreen] = React.useState(false);
+            // New state for recently played games queue
+            const [recentGames, setRecentGames] = React.useState([]);
+            const QUEUE_SIZE = 10; // Adjust this number to change how many recent games to remember
 
             React.useEffect(() => {
-                fetch('/api/games?t='+Date.now())
+                fetch('/api/games?t=' + Date.now())
                     .then((response) => response.json())
-                    .then((data) => { 
+                    .then((data) => {
                         console.error('Game Length:', data.length);
-                        setCurrentGame(Math.floor(Math.random() * data.length)); 
-                        setGames(data); 
+                        const initialGame = Math.floor(Math.random() * data.length);
+                        setCurrentGame(initialGame);
+                        setRecentGames([initialGame]); // Initialize recent games with first game
+                        setGames(data);
                     })
                     .catch((error) => console.error('Error fetching games:', error));
 
-                // Add fullscreen change event listener
                 const handleFullscreenChange = () => {
                     setIsFullscreen(!!document.fullscreenElement);
                 };
@@ -148,6 +154,32 @@
                     document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
                 };
             }, []);
+
+            const getNextGame = () => {
+                if (games.length <= QUEUE_SIZE) {
+                    // If we have fewer games than queue size, just pick randomly
+                    let newGame;
+                    do {
+                        newGame = Math.floor(Math.random() * games.length);
+                    } while (newGame === currentGame);
+                    return newGame;
+                }
+
+                // Get a random game that's not in the recent games queue
+                let newGame;
+                do {
+                    newGame = Math.floor(Math.random() * games.length);
+                } while (recentGames.includes(newGame));
+
+                // Update recent games queue
+                const updatedQueue = [...recentGames, newGame];
+                if (updatedQueue.length > QUEUE_SIZE) {
+                    updatedQueue.shift(); // Remove oldest game if queue is full
+                }
+                setRecentGames(updatedQueue);
+
+                return newGame;
+            };
 
             const toggleFullscreen = () => {
                 const rootElement = document.documentElement;
@@ -195,10 +227,7 @@
                 if (pulling && games.length > 0) {
                     setSlidingOut(true);
                     setTimeout(() => {
-                        let newGame;
-                        do {
-                            newGame = Math.floor(Math.random() * games.length);
-                        } while (newGame === currentGame);
+                        const newGame = getNextGame();
                         setShuffleTimestamp(Date.now());
                         setCurrentGame(newGame);
                     }, 400);
@@ -218,7 +247,7 @@
             const handleTouchStart = (e) => {
                 handleStart(e.touches[0].clientY);
             };
-            
+
             const handleTouchMove = (e) => {
                 if (handleMove(e.touches[0].clientY)) {
                     e.preventDefault();
@@ -228,7 +257,7 @@
             const handleMouseDown = (e) => {
                 handleStart(e.clientY);
             };
-            
+
             const handleMouseMove = (e) => {
                 if (startY !== null && handleMove(e.clientY)) {
                     e.preventDefault();
@@ -241,24 +270,24 @@
 
             return (
                 <div className='game-container'>
-                    <button 
-                            className="fullscreen-button" 
-                            onClick={toggleFullscreen}
-                            aria-label="Toggle fullscreen"
-                        >
-                            <svg className="fullscreen-icon" viewBox="0 0 24 24">
-                                {isFullscreen ? (
-                                    <path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/>
-                                ) : (
-                                    <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
-                                )}
-                            </svg>
-                        </button>
+                    <button
+                        className="fullscreen-button"
+                        onClick={toggleFullscreen}
+                        aria-label="Toggle fullscreen"
+                    >
+                        <svg className="fullscreen-icon" viewBox="0 0 24 24">
+                            {isFullscreen ? (
+                                <path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z" />
+                            ) : (
+                                <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" />
+                            )}
+                        </svg>
+                    </button>
                     <div
                         className={`game-container ${pulling ? 'pulling' : ''} ${isDragging ? 'dragging' : ''} ${slidingOut ? 'sliding-out' : ''}`}
                         style={{ transform }}
                     >
-                        <div 
+                        <div
                             className="drag-zone"
                             onTouchStart={handleTouchStart}
                             onTouchMove={handleTouchMove}
@@ -281,9 +310,10 @@
                 </div>
             );
         };
-        
+
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<GameFramework />);
     </script>
 </body>
+
 </html>
