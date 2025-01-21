@@ -132,13 +132,28 @@
             const QUEUE_SIZE = 10; // Adjust this number to change how many recent games to remember
 
             React.useEffect(() => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const gameIndex = urlParams.get('game');
+
                 fetch('/api/games?t=' + Date.now())
                     .then((response) => response.json())
                     .then((data) => {
                         console.error('Game Length:', data.length);
-                        const initialGame = Math.floor(Math.random() * data.length);
+                        
+                        // Set initial game based on URL parameter or random
+                        let initialGame;
+                        if (gameIndex !== null) {
+                            // Convert to number and validate
+                            initialGame = parseInt(gameIndex, 10);
+                            if (isNaN(initialGame) || initialGame < 0 || initialGame >= data.length) {
+                                initialGame = Math.floor(Math.random() * data.length);
+                            }
+                        } else {
+                            initialGame = Math.floor(Math.random() * data.length);
+                        }
+                        
                         setCurrentGame(initialGame);
-                        setRecentGames([initialGame]); // Initialize recent games with first game
+                        setRecentGames([initialGame]);
                         setGames(data);
                     })
                     .catch((error) => console.error('Error fetching games:', error));
@@ -180,6 +195,13 @@
 
                 return newGame;
             };
+
+            // Update URL when game changes
+            /*React.useEffect(() => {
+                const newUrl = new URL(window.location);
+                newUrl.searchParams.set('game', currentGame);
+                window.history.replaceState({}, '', newUrl);
+            }, [currentGame]);*/
 
             const toggleFullscreen = () => {
                 const rootElement = document.documentElement;
