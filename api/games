@@ -1,4 +1,7 @@
 [
+	{
+        "path": "games/StoryBook/index.html"
+    },
     {
         "path": "games/Tetris/index.html"
     },
