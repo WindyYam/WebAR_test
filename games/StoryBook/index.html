@@ -107,6 +107,7 @@
 
         function InteractiveStory() {
 			const [storySetup, setStorySetup] = useState('');
+			const [messageHead, setMessageHead] = useState([]);
 			const [currentInput, setCurrentInput] = useState('');
 			const [storyState, setStoryState] = useState('setup');
 			const [storyContent, setStoryContent] = useState([]);
@@ -140,6 +141,8 @@ IMPORTANT: Only output valid JSON. No other text before or after. Always include
                     { role: "user", content: `Create the opening scene for this story setup: ${storySetup}` }
                 ];
                 
+				setMessageHead(messages);
+				
                 await generateStorySegment(messages);
                 setStoryState('ongoing');
             };
@@ -296,13 +299,13 @@ ${sceneData.choices.map((choice, index) => `${index + 1}. ${choice}`).join('\n')
                         ? JSON.stringify(segment.rawScene)
                         : segment.content
                 }));
-
-                // Take only the last 10 messages
-                const recentMessages = contentMessages.slice(-10);
+				
+				// Take only the last 10 messages
+                const recentMessages = contentMessages.length > 10 ? contentMessages.slice(-10) : contentMessages;
 
                 // Add system prompt at the beginning and current input at the end
                 const messages = [
-                    { role: "system", content: systemPrompt },
+                    ...messageHead,
                     ...recentMessages,
                     { role: "user", content: currentInput }
                 ];
