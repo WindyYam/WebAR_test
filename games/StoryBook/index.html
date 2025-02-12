@@ -79,7 +79,7 @@
 		@media (max-width: 768px) {
             .story-container {
                 font-size: 1rem;
-                max-height: 50vh;
+				overflow-y: auto;
             }
             h1 {
                 font-size: 2rem;
@@ -88,6 +88,11 @@
                 font-size: 1rem;
                 padding: 12px;
             }
+			
+			img {
+				max-width: 100%; /* Ensure images fit within the screen width */
+				height: auto; /* Maintain aspect ratio */
+			}
         }
     </style>
 </head>
@@ -203,7 +208,8 @@ ${sceneData.choices.map((choice, index) => `${index + 1}. ${choice}`).join('\n')
             const generateStorySegment = async (messages) => {
 				setError('')
 				console.log(messages)
-				while(true)
+				let attempts = 3
+				while(attempts-- > 0)
 				{
 					try {
 						const response = await fetch('https://api.together.xyz/v1/chat/completions', {
@@ -264,6 +270,7 @@ ${sceneData.choices.map((choice, index) => `${index + 1}. ${choice}`).join('\n')
 								rawScene: finalScene,
 								image: imageUrl
 							}]);
+							console.log('scene done')
 							break;
 						} else {
 							setError('Failed to parse story response');
@@ -305,10 +312,17 @@ ${sceneData.choices.map((choice, index) => `${index + 1}. ${choice}`).join('\n')
             };
 
             useEffect(() => {
-                if (storyContentRef.current) {
-                    storyContentRef.current.scrollTop = storyContentRef.current.scrollHeight;
-                }
-            }, [storyContent]);
+				window.scrollTo({
+					top: document.body.scrollHeight,
+					behavior: "smooth",
+				});
+				if (storyContentRef.current) {
+					storyContentRef.current.scrollTo({
+						top: storyContentRef.current.scrollHeight,
+						behavior: 'smooth',
+					});
+				}
+			}, [storyContent, streamingContent]);
 
             const SceneDisplay = ({ content, type, image }) => {
                 if (type === 'user') {
@@ -350,7 +364,7 @@ ${sceneData.choices.map((choice, index) => `${index + 1}. ${choice}`).join('\n')
             return (
                 <div className="max-w-4xl mx-auto p-6">
                     <h1 className="text-4xl font-bold mb-8 text-center futuristic-heading bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
-                        Interactive Story Generator
+                        AI StoryBook
                     </h1>
                     
                     {storyState === 'setup' ? (
