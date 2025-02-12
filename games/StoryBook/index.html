@@ -126,7 +126,7 @@
     ]
 }
 The visual description should focus on the physical appearance and atmosphere. Don't reveal future outcomes.
-The user can make choice text of their own, not limited to provided choices.
+The user can make choice text of their own, not limited to provided choices. Prioritize the user's input.
 IMPORTANT: Only output valid JSON. No other text before or after. Always include choices, unless it is the ending.`;
 
             const startStory = async () => {
@@ -394,6 +394,11 @@ ${sceneData.choices.map((choice, index) => `${index + 1}. ${choice}`).join('\n')
                         </div>
                     ) : (
                         <div>
+							{storySetup && (
+									<div className="text-gray-400 font-mono p-4 futuristic-panel rounded-lg animate-pulse">
+										{storySetup}
+									</div>
+								)}
                             <div ref={storyContentRef} className="mb-4 h-96 overflow-y-auto p-4 rounded-lg story-container futuristic-panel">
 								{storyContent.map((segment, index) => (
 									<SceneDisplay 
