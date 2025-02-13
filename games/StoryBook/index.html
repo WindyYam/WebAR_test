@@ -239,7 +239,7 @@ ${sceneData.choices.map((choice, index) => `${index + 1}. ${choice}`).join('\n')
 								'Content-Type': 'application/json',
 							},
 							body: JSON.stringify({
-								model: 'deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free',
+								model:"meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
 								messages: messages,
 								"max_tokens": null,
 								"temperature": 0.7,
@@ -318,8 +318,6 @@ ${sceneData.choices.map((choice, index) => `${index + 1}. ${choice}`).join('\n')
 				
 				// Take only the last 5 messages
                 const recentMessages = contentMessages.length > 5 ? contentMessages.slice(-5) : contentMessages;
-				
-				console.log(recentMessages)
 				
                 // Add system prompt at the beginning and current input at the end
                 const messages = [
