@@ -53,6 +53,22 @@
             opacity: 0.5;
         }
 
+        .choice-button {
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            display: block;
+            width: 100%;
+            margin-bottom: 0.75rem;
+        }
+
+        .choice-button:hover {
+            background: rgba(96, 165, 250, 0.2);
+            border-color: rgba(96, 165, 250, 0.5);
+            transform: translateY(-2px);
+        }
+
+
         .story-container {
             font-size: 1.1rem;
             line-height: 1.6;
@@ -75,11 +91,11 @@
         .futuristic-heading {
             font-family: 'Orbitron', sans-serif;
         }
-		
-		@media (max-width: 768px) {
+        
+        @media (max-width: 768px) {
             .story-container {
                 font-size: 1rem;
-				overflow-y: auto;
+                overflow-y: auto;
             }
             h1 {
                 font-size: 2rem;
@@ -88,11 +104,11 @@
                 font-size: 1rem;
                 padding: 12px;
             }
-			
-			img {
-				max-width: 100%; /* Ensure images fit within the screen width */
-				height: auto; /* Maintain aspect ratio */
-			}
+            
+            img {
+                max-width: 100%;
+                height: auto;
+            }
         }
     </style>
 </head>
@@ -128,7 +144,7 @@
 }
 The visual description should focus on the physical appearance and atmosphere and should be in English.
 Some of the choice lead to good consequences, some bad consequences, based on the plot and logic.
-The user can make choice from the choices to determine the direction of the story, or make choice text of their own, not limited to provided choices. Prioritize the user's input.
+The user can make choice text of their own, not limited to provided choices, to direct the story. Prioritize the user's input.
 IMPORTANT: Only output valid JSON. No other text before or after. Always include choices, unless it is the ending.`;
 
             const startStory = async () => {
@@ -288,9 +304,9 @@ ${sceneData.choices.map((choice, index) => `${index + 1}. ${choice}`).join('\n')
 					}
 				}
             };
-
-            const handleUserChoice = async () => {
-                if (!currentInput.trim()) return;
+			
+			const handleInput = async(input) => {
+                if (!input.trim()) return;
                 
                 // Convert story content to messages format
                 const contentMessages = storyContent.map(segment => ({
@@ -300,19 +316,25 @@ ${sceneData.choices.map((choice, index) => `${index + 1}. ${choice}`).join('\n')
                         : segment.content
                 }));
 				
-				// Take only the last 10 messages
-                const recentMessages = contentMessages.length > 10 ? contentMessages.slice(-10) : contentMessages;
-
+				// Take only the last 5 messages
+                const recentMessages = contentMessages.length > 5 ? contentMessages.slice(-5) : contentMessages;
+				
+				console.log(recentMessages)
+				
                 // Add system prompt at the beginning and current input at the end
                 const messages = [
                     ...messageHead,
                     ...recentMessages,
-                    { role: "user", content: currentInput }
+                    { role: "user", content: input }
                 ];
 
-                setStoryContent(prev => [...prev, { type: 'user', content: currentInput }]);
+                setStoryContent(prev => [...prev, { type: 'user', content: input }]);
                 setCurrentInput('');
                 await generateStorySegment(messages);
+            };
+
+            const handleUserChoice = async () => {
+                await handleInput(currentInput.trim());
             };
 
             useEffect(() => {
@@ -328,7 +350,11 @@ ${sceneData.choices.map((choice, index) => `${index + 1}. ${choice}`).join('\n')
 				}
 			}, [storyContent, streamingContent]);
 
-            const SceneDisplay = ({ content, type, image }) => {
+            const handleChoiceClick = async (choice) => {
+                await handleInput(choice);
+            };
+
+            const SceneDisplay = ({ content, type, image, rawScene }) => {
                 if (type === 'user') {
                     return (
                         <div className="text-blue-400 font-medium mb-4 p-3 futuristic-panel rounded-lg">
@@ -339,7 +365,7 @@ ${sceneData.choices.map((choice, index) => `${index + 1}. ${choice}`).join('\n')
                 
                 return (
                     <div className="mb-8">
-						{image && (
+                        {image && (
                             <div className="relative">
                                 <img
                                     src={image}
@@ -349,17 +375,34 @@ ${sceneData.choices.map((choice, index) => `${index + 1}. ${choice}`).join('\n')
                             </div>
                         )}
                         <div className="mb-4 space-y-2 p-4 futuristic-panel rounded-lg">
-                            {content.split('\n').map((line, i) => (
-                                <div key={i} className={
-                                    line.startsWith('Scene:') 
-                                        ? 'text-blue-400 font-semibold mb-2' 
-                                        : line.startsWith('Available Choices') 
-                                            ? 'text-purple-400 font-semibold mt-4'
-                                            : 'text-gray-200'
-                                }>
-                                    {line}
-                                </div>
-                            ))}
+                            {/* Scene description */}
+                            <div className="text-blue-400 font-semibold mb-4">
+                                Scene:
+                            </div>
+                            <div className="text-gray-200 mb-6">
+                                {rawScene?.description}
+                            </div>
+                            
+                            {/* Choices section */}
+                            {rawScene?.choices && (
+                                <>
+                                    <div className="text-purple-400 font-semibold mb-4">
+                                        Available Choices:
+                                    </div>
+                                    <div className="flex flex-col">
+										{rawScene.choices.map((choice, index) => (
+											<button
+												key={index}
+												onClick={() => handleChoiceClick(choice)}
+												disabled={loading}
+												className="choice-button text-left p-3 rounded-lg hover:text-blue-300 disabled:opacity-50 disabled:cursor-not-allowed"
+											>
+												{`${index + 1}. ${choice}`}
+											</button>
+										))}
+									</div>
+                                </>
+                            )}
                         </div>
                     </div>
                 );
@@ -404,36 +447,41 @@ ${sceneData.choices.map((choice, index) => `${index + 1}. ${choice}`).join('\n')
 									</div>
 								)}
                             <div ref={storyContentRef} className="mb-4 h-96 overflow-y-auto p-4 rounded-lg story-container futuristic-panel">
-								{storyContent.map((segment, index) => (
-									<SceneDisplay 
-										key={index}
-										content={segment.content}
-										type={segment.type}
-										image={segment.image}
-									/>
-								))}
-							</div>
-							{streamingContent && (
-									<div className="text-gray-400 font-mono p-4 futuristic-panel rounded-lg animate-pulse">
-										{streamingContent}
-									</div>
-								)}
+                                {storyContent.map((segment, index) => (
+                                    <SceneDisplay 
+                                        key={index}
+                                        content={segment.content}
+                                        type={segment.type}
+                                        image={segment.image}
+                                        rawScene={segment.rawScene}
+                                    />
+                                ))}
+                                {streamingContent && (
+                                    <div className="text-gray-400 font-mono p-4 futuristic-panel rounded-lg animate-pulse">
+                                        {streamingContent}
+                                    </div>
+                                )}
+                            </div>
+
                             <div className="mb-4 futuristic-panel p-4 rounded-lg">
+                                <div className="text-sm text-gray-400 mb-2">
+                                    Or type your own choice:
+                                </div>
                                 <input
                                     type="text"
                                     value={currentInput}
                                     onChange={(e) => setCurrentInput(e.target.value)}
                                     onKeyPress={(e) => e.key === 'Enter' && handleUserChoice()}
                                     className="block w-full rounded-lg shadow-sm p-3 futuristic-input"
-                                    placeholder="Enter your choice..."
+                                    placeholder="Enter your custom choice..."
                                     disabled={loading}
                                 />
                                 <button
-                                    onClick={handleUserChoice}
+                                    onClick={() => handleUserChoice()}
                                     disabled={loading || !currentInput}
                                     className="mt-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-2 rounded-lg hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 transition-all duration-200 ease-in-out transform hover:scale-105 w-full"
                                 >
-                                    {loading ? 'Processing...' : 'Submit Choice'}
+                                    {loading ? 'Processing...' : 'Submit Custom Choice'}
                                 </button>
                             </div>
                         </div>
