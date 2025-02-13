@@ -128,7 +128,7 @@
 }
 The visual description should focus on the physical appearance and atmosphere and should be in English.
 Some of the choice lead to good consequences, some bad consequences, based on the plot and logic.
-The user can make choice text of their own, not limited to provided choices. Prioritize the user's input.
+The user can make choice from the choices to determine the direction of the story, or make choice text of their own, not limited to provided choices. Prioritize the user's input.
 IMPORTANT: Only output valid JSON. No other text before or after. Always include choices, unless it is the ending.`;
 
             const startStory = async () => {
@@ -229,7 +229,7 @@ ${sceneData.choices.map((choice, index) => `${index + 1}. ${choice}`).join('\n')
 								"temperature": 0.7,
 								"top_p": 0.7,
 								"top_k": 50,
-								"repetition_penalty": 1,
+								"repetition_penalty": 1.25,
 								"stop": ["<｜end▁of▁sentence｜>"],
 								"stream": true
 							})
