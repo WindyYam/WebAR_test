@@ -281,9 +281,9 @@ ${sceneData.choices.map((choice, index) => `${index + 1}. ${choice}`).join('\n')
 						// Final parsing of complete response
 						const finalScene = parseStreamedJSON(accumulatedText);
 						if (finalScene) {
-							setStreamingContent('');
 							// Generate image before adding to story content
 							const imageUrl = await generateImage(finalScene.visual);
+							setStreamingContent('');
 							setStoryContent(prev => [...prev, { 
 								type: 'story', 
 								content: formatSceneContent(finalScene),
