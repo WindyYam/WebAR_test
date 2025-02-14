@@ -119,7 +119,7 @@
         const { useState, useEffect, useRef } = React;
         
         // Replace with your API key
-        const API_KEY = 'tgp_v1_S6u6NloD-92zKLmnEJCkGIBTYkuYE3uYgxoTFS03MOA';
+        const API_KEY = Math.random() < 0.5 ? 'tgp_v1_S6u6NloD-92zKLmnEJCkGIBTYkuYE3uYgxoTFS03MOA' : 'a25253ffa1da5e518cab153734bfae4adfae9115e598b648181cde8d7d106261';
 
         function InteractiveStory() {
 			const [storySetup, setStorySetup] = useState('');
