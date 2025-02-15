@@ -326,6 +326,7 @@ ${sceneData.choices.map((choice, index) => `${index + 1}. ${choice}`).join('\n')
                     { role: "user", content: input }
                 ];
 
+                setStreamingContent(input);
                 setCurrentInput('');
                 await generateStorySegment(messages);
             };
