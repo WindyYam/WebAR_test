@@ -284,7 +284,7 @@ ${sceneData.choices.map((choice, index) => `${index + 1}. ${choice}`).join('\n')
 							// Generate image before adding to story content
 							const imageUrl = await generateImage(finalScene.visual);
 							setStreamingContent('');
-							setStoryContent(prev => [...prev, { 
+							setStoryContent(prev => [...prev, { type: 'user', content: messages[messages.length-1].content}, { 
 								type: 'story', 
 								content: formatSceneContent(finalScene),
 								rawScene: finalScene,
@@ -326,7 +326,6 @@ ${sceneData.choices.map((choice, index) => `${index + 1}. ${choice}`).join('\n')
                     { role: "user", content: input }
                 ];
 
-                setStoryContent(prev => [...prev, { type: 'user', content: input }]);
                 setCurrentInput('');
                 await generateStorySegment(messages);
             };
